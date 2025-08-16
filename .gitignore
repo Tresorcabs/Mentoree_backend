@@ -16,6 +16,7 @@
 *.sqlite
 *.db-journal
 db.log
+*.migrations/
 
 # Environment-specific settings
 .env
@@ -38,3 +39,5 @@ dist/
 
 # Compiled C files
 *.so
+
+*.python-version
