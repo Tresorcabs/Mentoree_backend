@@ -1,0 +1,40 @@
+# Folders to ignore
+*.__pycache__/
+*.pyc
+*~
+
+# IDE config files
+.idea/
+.vscode/
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+*.csv
+*.xlsx
+*.sqlite
+*.db-journal
+db.log
+
+# Environment-specific settings
+.env
+
+# Virtual environment directories
+.venv/
+*.env
+Env/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Installed packages
+*.egg
+
+# Compiled Python files
+*.py[cod]
+
+# Compiled C files
+*.so
