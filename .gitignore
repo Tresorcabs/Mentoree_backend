@@ -17,6 +17,12 @@
 *.db-journal
 db.log
 *.migrations/
+appointments/migrations/
+mentorship/migrations/
+messaging/migrations/
+onboarding/migrations/
+profiles/migrations/
+users/migrations/
 
 # Environment-specific settings
 .env
