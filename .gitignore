@@ -30,6 +30,7 @@ users/migrations/
 
 # Virtual environment directories
 *.venv/
+.venv/
 *.env
 Env/
 
