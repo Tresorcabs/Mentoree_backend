@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'users',
+    #'users',
     'profiles',
     'onboarding',
     'mentorship',
@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.linkedin_oauth2',
     'allauth.socialaccount.providers.github',
+    'users.apps.UsersConfig',
     'corsheaders',
 ]
 
@@ -73,7 +74,7 @@ ROOT_URLCONF = 'mentoree.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],
+        'DIRS': [BASE_DIR / 'mentoree/templates'],  # Adjusted to point to the correct templates directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -116,9 +117,9 @@ SITE_ID = 1
 ACCOUNT_LOGIN_METHODS = {'email', 'username'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
 ACCOUNT_UNIQUE_EMAIL = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'  # Obligatoire pour valider les comptes
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # Obligatoire pour valider les comptes
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True  # Confirmer dès le clic sur le lien
-
+ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/"
 
 # EMAIL SETTINGS
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -127,7 +128,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'tresorbio16@gmail.com'
 EMAIL_HOST_PASSWORD = 'gmze rris fcyc lrno'
-DEFAULT_FROM_EMAIL = 'Mentoree <tresorbio16@gmail.com'
+DEFAULT_FROM_EMAIL = 'tresorbio16@gmail.com'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

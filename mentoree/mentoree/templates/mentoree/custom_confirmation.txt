@@ -1,0 +1,8 @@
+Bonjour {{ user.username }},
+
+Merci de vous être inscrit sur Mentoree !
+Veuillez cliquer sur le lien suivant pour confirmer votre adresse email :
+{{ activation_url }}
+
+Cordialement,
+L’équipe Mentoree

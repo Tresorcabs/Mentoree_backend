@@ -1,5 +1,7 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 
 # Create your models here.
 class CustomUser(AbstractUser):
@@ -29,9 +31,16 @@ class CustomUser(AbstractUser):
     is_profile_complete = models.BooleanField(default=False)  # To check if the user has completed their profile
     
     username = models.CharField(max_length=150, unique=True)  # Ensure username is unique
+    activation_key = models.CharField(max_length=255, null=True)
     
     USERNAME_FIELD = 'email'  # Use email as the unique identifier for authentication
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']  # Fields required for creating a user
     
     def __str__(self):
         return f'{self.username} ({self.role})'
+    
+
+
+class ActivationKey(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    activation_key = models.CharField(max_length=255)
