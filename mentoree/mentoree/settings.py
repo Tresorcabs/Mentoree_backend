@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -98,6 +99,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'SIMPLE_JWT': {
+        'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # 1 day
+        'REFRESH_TOKEN_LIFETIME': 60 * 60 * 24 * 7,  # 7 days
+        'ROTATE_REFRESH_TOKENS': True, # pour rafraîchir les tokens de connexion
+    }
 }
 
 # REST Auth custom serializers
