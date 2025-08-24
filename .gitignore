@@ -6,6 +6,7 @@
 # IDE config files
 .idea/
 .vscode/
+*.vscode/
 
 # Logs and databases
 *.log
@@ -28,6 +29,7 @@ users/migrations/
 .env
 
 # Virtual environment directories
+*.venv/
 .venv/
 *.env
 Env/

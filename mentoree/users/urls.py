@@ -1,6 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from users.views import UserViewSet, CustomConfirmEmailView
+from users.views import UserViewSet
+from .views import register, activate_account, login
 
 router = DefaultRouter()  # Crée un routeur pour gérer les routes de l'API
 # Enregistre le UserViewSet avec le routeur
@@ -10,5 +11,8 @@ router.register(r'users', UserViewSet)
 
 urlpatterns = [
     path('', include(router.urls)), # Inclut les routes du routeur dans les URL de l'application
-    path('api/auth/registration/account-confirm-email/<str:key>/', CustomConfirmEmailView.as_view(), name='account_confirm_email'),  # Route pour le message de confirmation d'email
+    path('register/', register, name='register'),  # Route pour la création de compte   
+    path('account/activate/<str:activation_key>/', activate_account, name='activate_account'),  # Route pour l'activation du compte avec une clé
+    # route pour le login
+    path('login/', login, name='login'),  # Route pour la connexion
 ]
