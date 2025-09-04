@@ -1,18 +1,21 @@
 import json
 from django.shortcuts import render, redirect
+from rest_framework.response import Response
 from rest_framework import viewsets, permissions
 from .serializers import CustomUserSerializer
 from users.models import CustomUser
 from allauth.account.views import ConfirmEmailView
 from .signals import send_custom_confirmation_email
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth import get_user_model, authenticate, login, logout
 from rest_framework_simplejwt.tokens import RefreshToken, RefreshToken
 import secrets  # Importer le module secrets pour générer des clés sécurisées
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -91,6 +94,7 @@ def register(request):
         else:
             return render(request, 'users/register.html')
     except Exception as e:
+        print(f'Error during account creation: {str(e)}')
         return HttpResponse(f"Une erreur s'est produite lors de la création du compte : {str(e)}", status=500)
 
 #========== Fonction pour générer une clé d'activation aléatoire
@@ -113,33 +117,47 @@ def activate_account(request, activation_key):
         user.activation_key = None  # Supprimer la clé d'activation après activation
         user.save()
         
-        # On redirige vers login avec le message de confirmation
-        return JsonResponse({'message': "Votre compte a été activé avec succès."}, status=200)
+        # Redirection vers la page de complétion du profil
+        return HttpResponseRedirect("http://localhost:5173/profile-completion")
     except ObjectDoesNotExist:
         return JsonResponse({'error': "Le lien d'activation est invalide ou a expiré."}, status=400)
     
-#========== 
-#========== Vue pour la connexion
+#==========
+
+#========== Vue pour la connexion ===============================================================
 @csrf_exempt
 def login(request):
     if request.method == 'POST':
-        body = request.body
-        data = json.loads(body.decode('utf-8'))
-        email = data.get('email')
-        password = data.get('password')
-        user = authenticate(request, email=email, password=password)
-        print(f'user : {user}')
-        if user is not None:
-            refresh = RefreshToken.for_user(user)
-            print(f"user token : {refresh}")
-            return JsonResponse({'access': str(refresh.access_token), 'refresh': str(refresh)}, status=200)
-        else:
-            return JsonResponse({'message': 'Identifiants incorrects'}, status=401)
-    else:
-        return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
-#==========
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            email = data.get('email')
+            password = data.get('password')
 
-#========== Fonction pour valider le token JWT
+            # ATTENTION : adapter selon ton backend (email vs username)
+            user = authenticate(request, email=email, password=password)
+
+            if user is not None:
+                refresh = RefreshToken.for_user(user)
+                return JsonResponse({
+                    'access': str(refresh.access_token),
+                    'refresh': str(refresh),
+                    'user': {
+                        'id': user.id,
+                        'username': user.username,
+                        'email': user.email,
+                        'is_active': user.is_active,
+                    }
+                }, status=200)
+            else:
+                return JsonResponse({'message': 'Identifiants incorrects'}, status=401)
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)
+
+    return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
+#================================================================================================
+
+#========== Fonction pour valider le token JWT ==============================================================
 def validate_token(request):
     token = request.META.get('HTTP_AUTHORIZATION')
     try:
@@ -150,27 +168,48 @@ def validate_token(request):
         return False
     
 #==========
-#========== Vue pour la déconnexion
+#========== Vue pour la déconnexion ==============================================================
 def logout(request):
     if request.method == 'POST':
         logout(request)
         return JsonResponse({'message': 'Vous êtes maintenant déconnecté'}, status=200)
     else:
         return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
+#==========================================================================================
     
-#========== Vue pour récupérer les informations de l'utilisateur connecté
+#========== Vue pour récupérer les informations de l'utilisateur connecté ===============================
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def get_current_user(request):
-    if request.method == 'GET':
-        user = request.user
-        if user.is_authenticated:
-            serializer = CustomUserSerializer(user)
-            return JsonResponse(serializer.data, status=200)
-        else:
-            return JsonResponse({'message': 'Utilisateur non authentifié'}, status=401)
-    else:
-        return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
-    
-#========== Vue pour mettre à jour les informations de l'utilisateur connecté
+    try:
+        """
+        Retourne les infos de l'utilisateur connecté.
+        Nécessite un token JWT valide dans l'en-tête Authorization.
+        """
+        user = request.user  # DRF a déjà identifié l'user via le token
+
+        serializer = CustomUserSerializer(user)
+        return Response({
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "is_active": user.is_active,
+                "is_profile_complete": user.is_profile_complete,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "date_of_birth": user.date_of_birth,
+                "bio": user.bio,
+                "city": user.city,
+                "profile_picture": user.profile_picture.url if user.profile_picture else None,
+                "phone": user.phone,
+                "role": user.role,
+            })
+    except Exception as e:
+        return print(f'Error fetching current user: {str(e)}')
+#==========================================================================================
+
+#========== Vue pour mettre à jour les informations de l'utilisateur connecté =============================
+
 def update_current_user(request):
     if request.method == 'PUT':
         user = request.user
@@ -204,7 +243,7 @@ def delete_current_user(request):
 def change_password(request):
     if request.method == 'POST':
         user = request.user
-        if user.is_authenticated:
+        if user.is_authenticated:   # Vérifie si l'utilisateur est authentifié (is_a est un attribut par défaut de Django)
             old_password = request.POST.get('old_password')
             new_password = request.POST.get('new_password')
             if user.check_password(old_password):
@@ -230,3 +269,42 @@ def list_users(request):
             return JsonResponse({'message': 'Accès interdit'}, status=403)
     else:
         return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
+
+#========== Vue pour compléter le profil de l'utilisateur connecté et marquer le profil comme complet si toutes les données requises sont fournies
+def complete_profile(request):
+    if request.method == 'POST':
+        user = request.user
+        if user.is_authenticated:
+            body = request.body
+            data = json.loads(body.decode('utf-8'))
+            serializer = CustomUserSerializer(user, data=data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                # Vérifiez si toutes les données requises sont fournies pour marquer le profil comme complet
+                required_fields = ['first_name', 'last_name', 'date_of_birth', 'bio', 'city', 'profile_picture', 'phone']
+                is_complete = all(getattr(user, field) for field in required_fields)
+                user.is_profile_complete = is_complete
+                user.save()
+                return JsonResponse(serializer.data, status=200)
+            else:
+                return JsonResponse(serializer.errors, status=400)
+        else:
+            return JsonResponse({'message': 'Utilisateur non authentifié'}, status=401)
+#==========
+
+#========== Vue pour vérifier si le profil de l'utilisateur est completen précisant ce qui manque
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def is_profile_complete(request):
+    if request.method == 'GET':
+        user = request.user
+        if user.is_authenticated:
+            required_fields = ['first_name', 'last_name', 'date_of_birth', 'bio', 'city', 'profile_picture', 'phone']
+            missing_fields = [field for field in required_fields if not getattr(user, field)]
+            is_complete = len(missing_fields) == 0  # Le profil est complet si aucune donnée requise n'est manquante
+            return JsonResponse({'is_profile_complete': is_complete, 'missing_fields': missing_fields}, status=200)
+        else:
+            return JsonResponse({'message': 'Utilisateur non authentifié'}, status=401)
+    else:
+        return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
+#==========

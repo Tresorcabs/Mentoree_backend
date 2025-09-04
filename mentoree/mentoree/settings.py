@@ -91,19 +91,38 @@ TEMPLATES = [
 WSGI_APPLICATION = 'mentoree.wsgi.application'
 
 # CORS
-CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins for development
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # ou ton frontend en prod
+]
+
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "origin",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+# CRSF
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173"]
 
 # REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
-    'SIMPLE_JWT': {
-        'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # 1 day
-        'REFRESH_TOKEN_LIFETIME': 60 * 60 * 24 * 7,  # 7 days
-        'ROTATE_REFRESH_TOKENS': True, # pour rafraîchir les tokens de connexion
-    }
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),  # 1 day
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),  # 7 days
+    'ROTATE_REFRESH_TOKENS': True, # pour rafraîchir les tokens de connexion
 }
 
 # REST Auth custom serializers
@@ -114,6 +133,8 @@ ACCOUNT_ADAPTER = 'users.adapters.CustomAccountAdapter'
 
 # Custom User Model
 AUTH_USER_MODEL = 'users.CustomUser'
+LOGIN_URL = None
+LOGOUT_URL = None
 
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = '/'
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = '/'
@@ -126,6 +147,12 @@ ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_VERIFICATION = 'none'  # Obligatoire pour valider les comptes
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True  # Confirmer dès le clic sur le lien
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = "/"
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # username
+    'allauth.account.auth_backends.AuthenticationBackend',  # email avec allauth
+]
+
 
 # EMAIL SETTINGS
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
