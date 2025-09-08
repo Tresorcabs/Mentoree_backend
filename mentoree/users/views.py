@@ -18,6 +18,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
+# ========== Vue pour activer le compte =====================
 
 def activate_account(request, activation_key):
     User = get_user_model()
@@ -29,14 +30,15 @@ def activate_account(request, activation_key):
     except ObjectDoesNotExist:
         return HttpResponse("Le lien d'activation est invalide ou a expiré.", status=400)
 
-# =========================
+# ===========================================================
+
 # Fontion pour la creation de compte
 #def register
 
 
 
 
-
+# ========== Vue pour la gestion des utilisateurs =====================
 class UserViewSet(viewsets.ModelViewSet):
     """
     A viewset for viewing and editing user instances.
@@ -53,7 +55,9 @@ class UserViewSet(viewsets.ModelViewSet):
             return CustomUser.objects.all()
         return CustomUser.objects.filter(id=user.id)  # Retourne uniquement l'utilisateur connecté
 
-#========== Vue pour la création de compte
+# ======================================================================
+
+# ========== Vue pour la création de compte =====================
 
 @csrf_exempt
 def register(request):
@@ -97,11 +101,15 @@ def register(request):
         print(f'Error during account creation: {str(e)}')
         return HttpResponse(f"Une erreur s'est produite lors de la création du compte : {str(e)}", status=500)
 
-#========== Fonction pour générer une clé d'activation aléatoire
+# ====================================================================== 
+
+# ========== Fonction pour générer une clé d'activation aléatoire ================================
 def generate_activation_key():
     return secrets.token_urlsafe(20)  # Génère une clé d'activation aléatoire de 20 caractères
 
-#========== Vue pour activer le compte
+# ====================================================================== 
+
+# ========== Vue pour activer le compte ================================
 def activate_account(request, activation_key):
     try:
         # ici on récupère l'utilisateur qui correspond à la clé d'activation
@@ -122,9 +130,9 @@ def activate_account(request, activation_key):
     except ObjectDoesNotExist:
         return JsonResponse({'error': "Le lien d'activation est invalide ou a expiré."}, status=400)
     
-#==========
+# ====================================================================== 
 
-#========== Vue pour la connexion ===============================================================
+# ========== Vue pour la connexion ===============================================================
 @csrf_exempt
 def login(request):
     if request.method == 'POST':
@@ -167,8 +175,9 @@ def validate_token(request):
     except:
         return False
     
-#==========
-#========== Vue pour la déconnexion ==============================================================
+# ====================================================================== 
+
+# ========== Vue pour la déconnexion ==============================================================
 def logout(request):
     if request.method == 'POST':
         logout(request)
@@ -177,7 +186,7 @@ def logout(request):
         return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
 #==========================================================================================
     
-#========== Vue pour récupérer les informations de l'utilisateur connecté ===============================
+# ========== Vue pour récupérer les informations de l'utilisateur connecté ===============================
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def get_current_user(request):
@@ -227,7 +236,9 @@ def update_current_user(request):
     else:
         return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
     
-#========== Vue pour supprimer l'utilisateur connecté
+# ====================================================================== 
+
+# ========== Vue pour supprimer l'utilisateur connecté =====================
 def delete_current_user(request):
     if request.method == 'DELETE':
         user = request.user
@@ -239,7 +250,9 @@ def delete_current_user(request):
     else:
         return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
     
-#========== Vue pour changer le mot de passe de l'utilisateur connecté
+# ====================================================================== 
+
+# ========== Vue pour changer le mot de passe de l'utilisateur connecté =====================
 def change_password(request):
     if request.method == 'POST':
         user = request.user
@@ -257,7 +270,9 @@ def change_password(request):
     else:
         return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
     
-#========== Vue pour récupérer la liste des utilisateurs (pour les administrateurs)
+# ====================================================================== 
+
+# ========== Vue pour récupérer la liste des utilisateurs (pour les administrateurs) =====================
 def list_users(request):
     if request.method == 'GET':
         user = request.user
@@ -270,36 +285,86 @@ def list_users(request):
     else:
         return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
 
-#========== Vue pour compléter le profil de l'utilisateur connecté et marquer le profil comme complet si toutes les données requises sont fournies
-def complete_profile(request):
-    if request.method == 'POST':
-        user = request.user
-        if user.is_authenticated:
-            body = request.body
-            data = json.loads(body.decode('utf-8'))
-            serializer = CustomUserSerializer(user, data=data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                # Vérifiez si toutes les données requises sont fournies pour marquer le profil comme complet
-                required_fields = ['first_name', 'last_name', 'date_of_birth', 'bio', 'city', 'profile_picture', 'phone']
-                is_complete = all(getattr(user, field) for field in required_fields)
-                user.is_profile_complete = is_complete
-                user.save()
-                return JsonResponse(serializer.data, status=200)
-            else:
-                return JsonResponse(serializer.errors, status=400)
-        else:
-            return JsonResponse({'message': 'Utilisateur non authentifié'}, status=401)
-#==========
+# ====================================================================== 
 
-#========== Vue pour vérifier si le profil de l'utilisateur est completen précisant ce qui manque
+# ========== Vue pour compléter le profil de l'utilisateur connecté et marquer le profil comme complet si toutes les données requises sont fournies =====================
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def complete_profile(request):
+    user = request.user
+    try:
+        try:
+            # Handle FormData
+            data = {}
+
+            # Extract text fields from FormData
+            for key in request.POST:
+                if key.endswith('[]'):  # Handle arrays
+                    array_key = key[:-2]  # Remove []
+                    if array_key not in data:
+                        data[array_key] = []
+                    data[array_key].append(request.POST[key])
+                else:
+                    data[key] = request.POST[key]
+
+            # Handle files
+            if 'cv' in request.FILES:
+                # For now, we'll skip CV handling as it's not in the model
+                pass
+
+            print("Received data:", data)
+
+            # Update CustomUser fields
+            user_fields = ['date_of_birth', 'bio', 'education_level', 'profile_picture']
+            user_data = {k: v for k, v in data.items() if k in user_fields}
+
+            if user_data:
+                serializer = CustomUserSerializer(user, data=user_data, partial=True)
+                if serializer.is_valid():
+                    serializer.save()
+                else:
+                    return JsonResponse(serializer.errors, status=400)
+
+            # Handle role-specific profiles
+            if user.role == 'mentor' and 'expertise' in data:
+                from profiles.models import MentorProfile
+                profile, created = MentorProfile.objects.get_or_create(user=user)
+                profile.expertise = data['expertise'] if isinstance(data['expertise'], list) else [data['expertise']]
+                profile.save()
+
+            elif user.role == 'mentee' and 'interests' in data:
+                from profiles.models import MenteeProfile
+                profile, created = MenteeProfile.objects.get_or_create(user=user)
+                profile.interests = data['interests'] if isinstance(data['interests'], list) else [data['interests']]
+                profile.save()
+
+            # Check if profile is complete (simplified check)
+            required_fields = ['date_of_birth', 'bio', 'profile_picture']
+            is_complete = all(getattr(user, field) for field in required_fields if field != 'profile_picture' or user.profile_picture)
+            user.is_profile_complete = is_complete
+            user.save()
+
+            # Return updated user data
+            serializer = CustomUserSerializer(user)
+            return JsonResponse(serializer.data, status=200)
+
+        except Exception as e:
+            print(f'Error in complete_profile: {str(e)}')
+            return JsonResponse({'error': str(e)}, status=400)
+
+    except Exception as e:
+        print(f'Error in complete_profile: {str(e)}')
+        return JsonResponse({'error': str(e)}, status=400)
+# ======================================================================
+
+# ========== Vue pour vérifier si le profil de l'utilisateur est completen précisant ce qui manque =====================
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def is_profile_complete(request):
     if request.method == 'GET':
         user = request.user
         if user.is_authenticated:
-            required_fields = ['first_name', 'last_name', 'date_of_birth', 'bio', 'city', 'profile_picture', 'phone']
+            required_fields = ['first_name', 'last_name', 'date_of_birth', 'bio', 'city', 'profile_picture']
             missing_fields = [field for field in required_fields if not getattr(user, field)]
             is_complete = len(missing_fields) == 0  # Le profil est complet si aucune donnée requise n'est manquante
             return JsonResponse({'is_profile_complete': is_complete, 'missing_fields': missing_fields}, status=200)
@@ -307,4 +372,4 @@ def is_profile_complete(request):
             return JsonResponse({'message': 'Utilisateur non authentifié'}, status=401)
     else:
         return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
-#==========
+# ====================================================================== 

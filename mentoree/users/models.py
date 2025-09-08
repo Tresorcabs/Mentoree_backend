@@ -21,8 +21,9 @@ class CustomUser(AbstractUser):
     date_of_birth = models.DateField(null=True, blank=True)
     bio = models.TextField(blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    profile_picture = models.URLField(blank=True, null=True)  # Changed to URLField for Cloudinary URLs
     phone = models.CharField(max_length=15, blank=True, null=True)
+    education_level = models.CharField(max_length=50, blank=True, null=True)
     is_active = models.BooleanField(default=False)  # To manage user activation status
     is_verified = models.BooleanField(default=False)  # To manage email verification status
     is_online = models.BooleanField(default=False)

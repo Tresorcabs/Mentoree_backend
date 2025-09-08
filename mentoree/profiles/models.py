@@ -8,7 +8,7 @@ class MentorProfile(models.Model):
     This can include fields like expertise, availability, etc.
     """
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='mentor_profile')
-    expertise = models.CharField(max_length=255, blank=True, null=True)
+    expertise = models.JSONField(blank=True, null=True)  # Store as array
     years_of_experience = models.PositiveIntegerField(default=0)
     linked_in_profile = models.URLField(blank=True, null=True)
     website = models.URLField(blank=True, null=True)
@@ -29,7 +29,7 @@ class MenteeProfile(models.Model):
     current_level = models.CharField(max_length=50, blank=True, null=True)  # ex: 'Licence', 'Master'
     goals = models.TextField(blank=True, null=True)  # les objectifs du mentoré ex: [ 'Apprendre Python', 'Développer un projet' ]
     skills = models.TextField(blank=True, null=True)  # les compétences du mentoré
-    interests = models.TextField(blank=True, null=True) # les intérêts du mentoré ex: [ 'Développement Web', 'Data Science' ]
+    interests = models.JSONField(blank=True, null=True) # Store as array
     is_active = models.BooleanField(default=True)
 
     def __str__(self):

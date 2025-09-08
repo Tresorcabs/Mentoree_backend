@@ -49,6 +49,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'city',
             'profile_picture',
             'phone',
+            'education_level',
             'is_verified',
             'is_online',
             'is_active',
