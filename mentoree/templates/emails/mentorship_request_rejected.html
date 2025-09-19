@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demande de mentorat refusée</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8d7da; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 20px; background-color: #ffffff; border: 1px solid #f5c6cb; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 12px; color: #6c757d; }
+        .button { display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin: 10px 0; }
+        .highlight { background-color: #f8d7da; padding: 15px; border-radius: 4px; margin: 15px 0; border-left: 4px solid #dc3545; }
+        .info-box { background-color: #e9ecef; padding: 15px; border-radius: 4px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 Mise à jour de votre demande</h1>
+        </div>
+
+        <div class="content">
+            <p>Bonjour <strong>{{ mentee_name }}</strong>,</p>
+
+            <p>Nous vous informons que votre demande de mentorat auprès de <strong>{{ mentor_name }}</strong> a été refusée.</p>
+
+            <div class="highlight">
+                <h3>ℹ️ Détails de la demande :</h3>
+                <p><strong>Mentor sollicité :</strong> {{ mentor_name }}</p>
+                <p><strong>Domaine :</strong> {{ expertise }}</p>
+                <p><strong>Date de la demande :</strong> {{ request_date }}</p>
+                <p><strong>Date de réponse :</strong> {{ response_date }}</p>
+            </div>
+
+            <div class="info-box">
+                <h3>💡 Que faire maintenant ?</h3>
+                <p>Ne vous découragez pas ! Voici quelques suggestions :</p>
+                <ul>
+                    <li><strong>Explorez d'autres mentors</strong> dans le même domaine</li>
+                    <li><strong>Affinez votre demande</strong> en précisant mieux vos objectifs</li>
+                    <li><strong>Contactez plusieurs mentors</strong> simultanément</li>
+                    <li><strong>Consultez les profils</strong> pour mieux cibler vos demandes</li>
+                </ul>
+            </div>
+
+            <p>Chaque mentor a ses propres critères et disponibilités. Continuez à chercher le mentor qui correspondra le mieux à vos besoins.</p>
+
+            <a href="{{ mentors_url }}" class="button">Découvrir d'autres mentors</a>
+
+            <p style="margin-top: 20px;">
+                <small>Si vous avez des questions ou besoin d'aide pour trouver le mentor idéal, n'hésitez pas à nous contacter.</small>
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>Cette notification a été envoyée automatiquement par Mentoree.</p>
+            <p>© 2024 Mentoree. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>

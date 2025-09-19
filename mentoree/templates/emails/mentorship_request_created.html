@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouvelle demande de mentorat</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 20px; background-color: #ffffff; border: 1px solid #dee2e6; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 12px; color: #6c757d; }
+        .button { display: inline-block; padding: 12px 24px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px; margin: 10px 0; }
+        .highlight { background-color: #e9ecef; padding: 15px; border-radius: 4px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 Nouvelle demande de mentorat</h1>
+        </div>
+
+        <div class="content">
+            <p>Bonjour <strong>{{ mentor_name }}</strong>,</p>
+
+            <p>Vous avez reçu une nouvelle demande de mentorat de la part de <strong>{{ mentee_name }}</strong>.</p>
+
+            <div class="highlight">
+                <h3>📋 Détails de la demande :</h3>
+                <p><strong>Domaine souhaité :</strong> {{ expertise }}</p>
+                <p><strong>Durée proposée :</strong> {{ duration }}</p>
+                <p><strong>Date de la demande :</strong> {{ request_date }}</p>
+            </div>
+
+            <div class="highlight">
+                <h3>🎯 Objectifs du mentorat :</h3>
+                <p>{{ objectives }}</p>
+            </div>
+
+            <div class="highlight">
+                <h3>💌 Lettre de motivation :</h3>
+                <p>{{ message|linebreaks }}</p>
+            </div>
+
+            <p>Vous pouvez consulter et répondre à cette demande dans votre tableau de bord :</p>
+
+            <a href="{{ dashboard_url }}" class="button">Voir la demande</a>
+
+            <p style="margin-top: 20px;">
+                <small>Si vous n'êtes pas intéressé par cette demande, vous pouvez la refuser directement depuis votre tableau de bord.</small>
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>Cette notification a été envoyée automatiquement par Mentoree.</p>
+            <p>© 2024 Mentoree. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>

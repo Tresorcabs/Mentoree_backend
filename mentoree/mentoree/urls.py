@@ -36,4 +36,5 @@ urlpatterns = [
     path('api/auth/registration/', include('dj_rest_auth.registration.urls')),  # Registration
     path('accounts/inactive/', account_inactive, name='account_inactive'),
     path('api/', include('users.urls')),  # Inclut les routes de l'application users
+    path('api/profiles/', include('profiles.urls')),  # Inclut les routes de l'application profiles
 ]

@@ -99,7 +99,7 @@ def register(request):
             return render(request, 'users/register.html')
     except Exception as e:
         print(f'Error during account creation: {str(e)}')
-        return HttpResponse(f"Une erreur s'est produite lors de la création du compte : {str(e)}", status=500)
+        return JsonResponse({'message': str(e)}, status=500)
 
 # ====================================================================== 
 
@@ -196,7 +196,7 @@ def get_current_user(request):
         Nécessite un token JWT valide dans l'en-tête Authorization.
         """
         user = request.user  # DRF a déjà identifié l'user via le token
-
+        print(f'user : {user}')
         serializer = CustomUserSerializer(user)
         return Response({
                 "id": user.id,
@@ -209,7 +209,7 @@ def get_current_user(request):
                 "date_of_birth": user.date_of_birth,
                 "bio": user.bio,
                 "city": user.city,
-                "profile_picture": user.profile_picture.url if user.profile_picture else None,
+                "profile_picture": user.profile_picture if user.profile_picture else None,
                 "phone": user.phone,
                 "role": user.role,
             })
@@ -218,19 +218,82 @@ def get_current_user(request):
 #==========================================================================================
 
 #========== Vue pour mettre à jour les informations de l'utilisateur connecté =============================
-
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
 def update_current_user(request):
-    if request.method == 'PUT':
+    if request.method == 'PATCH':
         user = request.user
         if user.is_authenticated:
-            body = request.body
-            data = json.loads(body.decode('utf-8'))
-            serializer = CustomUserSerializer(user, data=data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
+            try:
+                # Handle FormData (multipart/form-data)
+                data = {}
+
+                # Extract text fields from FormData
+                for key in request.POST:
+                    if key.endswith('[]'):  # Handle arrays
+                        array_key = key[:-2]  # Remove []
+                        if array_key not in data:
+                            data[array_key] = []
+                        data[array_key].append(request.POST[key])
+                    else:
+                        data[key] = request.POST[key]
+
+                # Process arrays from request.POST.getlist
+                for key in request.POST:
+                    if key.endswith('[]'):
+                        array_key = key[:-2]
+                        data[array_key] = request.POST.getlist(key)
+
+                # Handle files (if any)
+                if 'cv' in request.FILES:
+                    # For now, we'll skip CV handling as it's not in the model
+                    pass
+
+                print("Received update data:", data)
+
+                # Update user fields
+                user_fields = ['first_name', 'last_name', 'phone', 'city', 'bio', 'date_of_birth', 'education_level', 'profile_picture']
+                user_data = {k: v for k, v in data.items() if k in user_fields}
+
+                if user_data:
+                    serializer = CustomUserSerializer(user, data=user_data, partial=True)
+                    if serializer.is_valid():
+                        serializer.save()
+                    else:
+                        return JsonResponse(serializer.errors, status=400)
+
+                # Handle role-specific profiles
+                if user.role == 'mentor' and 'expertise' in data:
+                    from profiles.models import MentorProfile
+                    profile, created = MentorProfile.objects.get_or_create(user=user)
+
+                    # Ensure expertise is a list
+                    if isinstance(data['expertise'], list):
+                        profile.expertise = data['expertise']
+                    else:
+                        profile.expertise = [data['expertise']]
+
+                    profile.save()
+
+                elif user.role == 'mentee' and 'interests' in data:
+                    from profiles.models import MenteeProfile
+                    profile, created = MenteeProfile.objects.get_or_create(user=user)
+
+                    # Ensure interests is a list
+                    if isinstance(data['interests'], list):
+                        profile.interests = data['interests']
+                    else:
+                        profile.interests = [data['interests']]
+
+                    profile.save()
+
+                # Return updated user data
+                serializer = CustomUserSerializer(user)
                 return JsonResponse(serializer.data, status=200)
-            else:
-                return JsonResponse(serializer.errors, status=400)
+
+            except Exception as e:
+                print(f'Error in update_current_user: {str(e)}')
+                return JsonResponse({'error': str(e)}, status=400)
         else:
             return JsonResponse({'message': 'Utilisateur non authentifié'}, status=401)
     else:
@@ -306,6 +369,12 @@ def complete_profile(request):
                     data[array_key].append(request.POST[key])
                 else:
                     data[key] = request.POST[key]
+            
+            # Process arrays from request.POST.getlist
+            for key in request.POST:
+                if key.endswith('[]'):
+                    array_key = key[:-2]
+                    data[array_key] = request.POST.getlist(key)
 
             # Handle files
             if 'cv' in request.FILES:
@@ -329,13 +398,25 @@ def complete_profile(request):
             if user.role == 'mentor' and 'expertise' in data:
                 from profiles.models import MentorProfile
                 profile, created = MentorProfile.objects.get_or_create(user=user)
-                profile.expertise = data['expertise'] if isinstance(data['expertise'], list) else [data['expertise']]
+                
+                # Ensure expertise is a list
+                if isinstance(data['expertise'], list):
+                    profile.expertise = data['expertise']
+                else:
+                    profile.expertise = [data['expertise']]
+                    
                 profile.save()
 
             elif user.role == 'mentee' and 'interests' in data:
                 from profiles.models import MenteeProfile
                 profile, created = MenteeProfile.objects.get_or_create(user=user)
-                profile.interests = data['interests'] if isinstance(data['interests'], list) else [data['interests']]
+                
+                # Ensure interests is a list
+                if isinstance(data['interests'], list):
+                    profile.interests = data['interests']
+                else:
+                    profile.interests = [data['interests']]
+                    
                 profile.save()
 
             # Check if profile is complete (simplified check)
@@ -373,3 +454,6 @@ def is_profile_complete(request):
     else:
         return JsonResponse({'message': 'Méthode non autorisée'}, status=405)
 # ====================================================================== 
+
+
+# =========== Vue pour récupérer tous les mentors ==========================================
