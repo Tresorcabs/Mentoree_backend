@@ -11,6 +11,7 @@ router.register(r'mentees', views.MenteeProfileViewSet, basename='mentee')
 urlpatterns = [
     path('', include(router.urls)),
     path('mentor-profile/update/', views.update_mentor_profile, name='update-mentor-profile'),
+    path('mentee-profile/update/', views.update_mentee_profile, name='update-mentee-profile'),
 ]
 
 # API Endpoints created:

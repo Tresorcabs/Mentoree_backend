@@ -2,7 +2,7 @@
 from rest_framework import viewsets, status, filters
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from django.db import models
@@ -33,6 +33,15 @@ class MentorViewSet(viewsets.ReadOnlyModelViewSet):
     ordering_fields = ['average_rating', 'total_reviews', 'years_of_experience', 'hourly_rate']
     ordering = ['-is_featured', '-average_rating']  # Default ordering
     pagination_class = None  # Disable pagination for now to debug the issue
+
+    def get_permissions(self):
+        """
+        Allow unauthenticated access for list and retrieve actions.
+        Require authentication for other actions like toggle_favorite.
+        """
+        if self.action in ['list', 'retrieve']:
+            return [AllowAny()]
+        return super().get_permissions()
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -82,13 +91,27 @@ class MentorshipRequestViewSet(viewsets.ModelViewSet):
     serializer_class = MentorshipRequestSerializer
     permission_classes = [IsAuthenticated]
     pagination_class = None  # Disable pagination to return plain arrays
-    
+
     def get_queryset(self):
         user = self.request.user
+        queryset = MentorshipRequest.objects.all()
+
+        # Allow filtering by mentor for mentees checking active relationships
+        mentor_id = self.request.query_params.get('mentor')
+        status_filter = self.request.query_params.get('status')
+
+        if mentor_id:
+            queryset = queryset.filter(mentor_id=mentor_id)
+        if status_filter:
+            queryset = queryset.filter(status=status_filter)
+
+        # Still filter by user role for security
         if user.role == 'mentor':
-            return MentorshipRequest.objects.filter(mentor__user=user)
+            queryset = queryset.filter(mentor__user=user)
         else:
-            return MentorshipRequest.objects.filter(mentee__user=user)
+            queryset = queryset.filter(mentee__user=user)
+
+        return queryset
     
     @action(detail=False, methods=['get'])
     def mentor_requests(self, request):
@@ -244,15 +267,15 @@ def update_mentor_profile(request):
     """
     if request.user.role != 'mentor':
         return Response({"error": "Only mentors can update mentor profiles"}, status=status.HTTP_403_FORBIDDEN)
-    
+
     try:
         mentor_profile = MentorProfile.objects.get(user=request.user)
     except MentorProfile.DoesNotExist:
         # Create a new mentor profile if it doesn't exist
         mentor_profile = MentorProfile.objects.create(user=request.user)
-    
+
     serializer = MentorProfileUpdateSerializer(mentor_profile, data=request.data, partial=True)
-    
+
     if serializer.is_valid():
         # Make sure expertise is saved as a list
         if 'expertise' in request.data:
@@ -260,15 +283,45 @@ def update_mentor_profile(request):
                 serializer.validated_data['expertise'] = request.data['expertise']
             else:
                 serializer.validated_data['expertise'] = [request.data['expertise']]
-            
+
         # Make sure languages is saved as a list
         if 'languages' in request.data:
             if isinstance(request.data['languages'], list):
                 serializer.validated_data['languages'] = request.data['languages']
             else:
                 serializer.validated_data['languages'] = [request.data['languages']]
-            
+
         serializer.save()
         return Response(serializer.data)
-    
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(["PATCH"])
+@permission_classes([IsAuthenticated])
+def update_mentee_profile(request):
+    """
+    Update mentee profile fields for the authenticated user
+    """
+    if request.user.role != 'mentee':
+        return Response({"error": "Only mentees can update mentee profiles"}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        mentee_profile = MenteeProfile.objects.get(user=request.user)
+    except MenteeProfile.DoesNotExist:
+        # Create a new mentee profile if it doesn't exist
+        mentee_profile = MenteeProfile.objects.create(user=request.user)
+
+    serializer = MenteeProfileSerializer(mentee_profile, data=request.data, partial=True)
+
+    if serializer.is_valid():
+        # Make sure interests is saved as a list
+        if 'interests' in request.data:
+            if isinstance(request.data['interests'], list):
+                serializer.validated_data['interests'] = request.data['interests']
+            else:
+                serializer.validated_data['interests'] = [request.data['interests']]
+
+        serializer.save()
+        return Response(serializer.data)
+
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

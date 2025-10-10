@@ -457,3 +457,22 @@ def is_profile_complete(request):
 
 
 # =========== Vue pour récupérer tous les mentors ==========================================
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_mentors(request):
+    """
+    Get all active mentors.
+    """
+    mentors = CustomUser.objects.filter(role='mentor', is_active=True)
+    serializer = CustomUserSerializer(mentors, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_mentees(request):
+    """
+    Get all active mentees.
+    """
+    mentees = CustomUser.objects.filter(role='mentee', is_active=True)
+    serializer = CustomUserSerializer(mentees, many=True)
+    return Response(serializer.data)

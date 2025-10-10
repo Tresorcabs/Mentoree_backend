@@ -1,7 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from users.views import UserViewSet
-from .views import is_profile_complete, register, activate_account, login, logout, validate_token, get_current_user, update_current_user, delete_current_user, change_password, complete_profile
+from .views import is_profile_complete, register, activate_account, login, logout, validate_token, get_current_user, update_current_user, delete_current_user, change_password, complete_profile, get_mentors, get_mentees
 
 
 router = DefaultRouter()  # Crée un routeur pour gérer les routes de l'API
@@ -24,5 +24,7 @@ urlpatterns = [
     path('current-user/update/', update_current_user, name='update_current_user'),  # Route pour mettre à jour les informations de l'utilisateur actuel
     path('current-user/delete/', delete_current_user, name='delete_current_user'),  # Route pour supprimer l'utilisateur actuel
     path('current-user/change-password/', change_password   , name='change_password'),  # Route pour changer le mot de passe
-    
+    path('mentors/', get_mentors, name='get_mentors'),  # Route pour récupérer tous les mentors
+    path('mentees/', get_mentees, name='get_mentees'),  # Route pour récupérer tous les mentorés
+
 ]

@@ -25,6 +25,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from users.utils import get_confirmation_url
 from users.signals import send_custom_confirmation_email
+from mentorship.views import dashboard_mentor, dashboard_mentee
 def account_inactive(request):
     return HttpResponse("Your account is inactive. Please contact support.", status=403)
 
@@ -37,4 +38,11 @@ urlpatterns = [
     path('accounts/inactive/', account_inactive, name='account_inactive'),
     path('api/', include('users.urls')),  # Inclut les routes de l'application users
     path('api/profiles/', include('profiles.urls')),  # Inclut les routes de l'application profiles
+    path('api/messaging/', include('messaging.urls')),  # Inclut les routes de l'application messaging
+    path('api/meetings/', include('meetings.urls')),  # Inclut les routes de l'application meetings
+    path('api/', include('sprints.urls')),  # Inclut les routes de l'application sprints
+    path('api/resources/', include('resources.urls')),  # Inclut les routes de l'application resources
+    path('api/mentorship/', include('mentorship.urls')),  # Inclut les routes de l'application mentorship
+    path('api/dashboard/mentor/', dashboard_mentor, name='dashboard-mentor'),
+    path('api/dashboard/mentee/', dashboard_mentee, name='dashboard-mentee'),
 ]

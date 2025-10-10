@@ -26,12 +26,13 @@ SECRET_KEY = 'django-insecure-rb9i&jdiuws6ycu2*(6a%7p8n#95jl!y4rj4+0r%)g^v6(_@26
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '172.24.4.150', 'uneulogized-valentino-stomachically.ngrok-free.dev']
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -44,6 +45,9 @@ INSTALLED_APPS = [
     'mentorship',
     'messaging',
     'appointments',
+    'meetings',
+    'sprints',
+    'resources',
     'rest_framework',
     'rest_framework.authtoken',
     'dj_rest_auth',
@@ -168,6 +172,23 @@ EMAIL_HOST_USER = 'tresorbio16@gmail.com'
 EMAIL_HOST_PASSWORD = 'gmze rris fcyc lrno'
 DEFAULT_FROM_EMAIL = 'tresorbio16@gmail.com'
 
+# Configuration des canaux
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [('127.0.0.1', 6379)],
+#         },
+#     },
+# }
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+    },
+}
+
+
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
@@ -227,3 +248,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Daily.co API settings
+DAILY_API_KEY = '59ce796269054f86b046330b8e84f3fc89df97b6cecfeb8bc072dcc7e1dd4fab'  # Replace with your actual Daily.co API key
+
+ASGI_APPLICATION = 'mentoree.asgi.application'
