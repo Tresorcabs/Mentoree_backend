@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demande de mentorat acceptée</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #d4edda; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 20px; background-color: #ffffff; border: 1px solid #c3e6cb; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; border-radius: 0 0 8px 8px; font-size: 12px; color: #6c757d; }
+        .button { display: inline-block; padding: 12px 24px; background-color: #28a745; color: white; text-decoration: none; border-radius: 4px; margin: 10px 0; }
+        .highlight { background-color: #d4edda; padding: 15px; border-radius: 4px; margin: 15px 0; border-left: 4px solid #28a745; }
+        .success-icon { color: #28a745; font-size: 48px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="success-icon">✅</div>
+            <h1>Félicitations !</h1>
+            <h2>Votre demande de mentorat a été acceptée</h2>
+        </div>
+
+        <div class="content">
+            <p>Bonjour <strong>{{ mentee_name }}</strong>,</p>
+
+            <p>Excellente nouvelle ! <strong>{{ mentor_name }}</strong> a accepté votre demande de mentorat.</p>
+
+            <div class="highlight">
+                <h3>🎉 Mentorat confirmé :</h3>
+                <p><strong>Mentor :</strong> {{ mentor_name }}</p>
+                <p><strong>Domaine :</strong> {{ expertise }}</p>
+                <p><strong>Durée prévue :</strong> {{ duration }}</p>
+                <p><strong>Date d'acceptation :</strong> {{ acceptance_date }}</p>
+            </div>
+
+            <div class="highlight">
+                <h3>📝 Rappel de vos objectifs :</h3>
+                <p>{{ objectives }}</p>
+            </div>
+
+            <p>Vous pouvez maintenant commencer votre parcours de mentorat avec {{ mentor_name }}. N'hésitez pas à prendre contact pour organiser votre première session.</p>
+
+            <a href="{{ dashboard_url }}" class="button">Accéder à mon tableau de bord</a>
+
+            <p style="margin-top: 20px;">
+                <strong>💡 Prochaines étapes :</strong>
+            </p>
+            <ul>
+                <li>Contactez votre mentor pour planifier la première session</li>
+                <li>Préparez vos questions et objectifs pour la session</li>
+                <li>Suivez régulièrement vos progrès dans votre tableau de bord</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Cette notification a été envoyée automatiquement par Mentoree.</p>
+            <p>© 2024 Mentoree. Tous droits réservés.</p>
+        </div>
+    </div>
+</body>
+</html>

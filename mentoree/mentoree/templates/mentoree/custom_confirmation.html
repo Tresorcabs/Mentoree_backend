@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation d'inscription - Mentoree</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+        
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+        
+        .tagline {
+            font-size: 1.1em;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .content {
+            padding: 50px 40px;
+            text-align: center;
+        }
+        
+        .greeting {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .message {
+            font-size: 1.1em;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 40px;
+        }
+        
+        .cta-container {
+            margin: 40px 0;
+        }
+        
+        .btn-activate {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn-activate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+        
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+            margin: 40px 0;
+        }
+        
+        .alternative-link {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px 0;
+        }
+        
+        .alternative-link h4 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+        
+        .alternative-link code {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            display: block;
+            font-size: 0.9em;
+            color: #495057;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 30px 40px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .footer-content {
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        
+        .team-signature {
+            font-weight: 600;
+            color: #333;
+            margin-top: 20px;
+        }
+        
+        .social-links {
+            margin-top: 20px;
+        }
+        
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 50%;
+            line-height: 40px;
+            margin: 0 5px;
+            transition: transform 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            transform: scale(1.1);
+        }
+        
+        .security-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: left;
+        }
+        
+        .security-note h4 {
+            color: #856404;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .security-note p {
+            color: #856404;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+        
+        .icon {
+            margin-right: 8px;
+        }
+        
+        @media (max-width: 600px) {
+            .email-container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header, .content, .footer {
+                padding: 30px 25px;
+            }
+            
+            .logo {
+                font-size: 2em;
+            }
+            
+            .btn-activate {
+                padding: 15px 30px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">Mentoree</div>
+            <div class="tagline">Votre plateforme de mentorat</div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="content">
+            <div class="greeting">
+                Bonjour <strong>{{ user.username }}</strong> ! 👋
+            </div>
+            
+            <div class="message">
+                Merci de vous être inscrit sur <strong>Mentoree</strong> ! Nous sommes ravis de vous accueillir dans notre communauté de mentors et mentorés.
+                <br><br>
+                Pour finaliser votre inscription et commencer votre parcours, veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous :
+            </div>
+            
+            <div class="cta-container">
+                <a href="{{ activation_url }}" class="btn-activate">
+                    ✨ Activer mon compte
+                </a>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- Alternative Link -->
+            <div class="alternative-link">
+                <h4>🔗 Le bouton ne fonctionne pas ?</h4>
+                <p>Copiez et collez ce lien dans votre navigateur :</p>
+                <code>{{ activation_url }}</code>
+            </div>
+            
+            <!-- Security Note -->
+            <div class="security-note">
+                <h4>
+                    <span class="icon">🔒</span>
+                    Note de sécurité
+                </h4>
+                <p>
+                    Ce lien d'activation est valide pendant <strong>24 heures</strong> et ne peut être utilisé qu'une seule fois. 
+                    Si vous n'avez pas créé de compte sur Mentoree, vous pouvez ignorer cet email en toute sécurité.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="footer-content">
+                Une fois votre compte activé, vous pourrez :
+                <br>
+                • Créer votre profil personnalisé
+                <br>
+                • Rejoindre des sessions de mentorat
+                <br>
+                • Accéder à notre bibliothèque de ressources
+                <br>
+                • Connecter avec notre communauté
+            </div>
+            
+            <div class="team-signature">
+                Cordialement,<br>
+                <strong>L'équipe Mentoree</strong> 💜
+            </div>
+            
+            <div class="social-links">
+                <a href="#" title="LinkedIn">in</a>
+                <a href="#" title="Twitter">𝕏</a>
+                <a href="#" title="Instagram">📷</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
